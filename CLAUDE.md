@@ -47,4 +47,9 @@ Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
   library) won't do SASL on an insecure stream, and the dev server should match the school
   one. Gotcha: Prosody doesn't autoload `tls`; without it in modules_enabled it offers no
   STARTTLS and closes with "No stream features to offer on insecure session".
-- Next: the XMPP connector in `../pim` (see docs/plan.md phase 2).
+- 2026-11-10: rooms now rename a joining occupant to their school name (status 210) instead
+  of refusing other nicknames, so clients need not know the name.
+- 2026-11-10: `../pim` XMPP connector done (branch xmpp-connector, commit 20439c7), live-tested
+  against this dev server: `PIM_CA=$PWD/.dev/certs/pim.test.crt go test -tags xmpplive -run Live
+  ./backend/internal/connector/xmpp/` from `../pim`, with the server pinned to Monday 10:00.
+- Next: buddy list + presence in pim's window (phase 3); then `mod_pim_policy` (1:1 rules).
