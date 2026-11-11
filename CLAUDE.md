@@ -31,5 +31,15 @@ Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
   `prosody --version` starts a server with the system config; the lua-unbound warning is
   harmless (no s2s); slixmpp needs `unencrypted_scram` on localhost and reports away as
   `presence_away`, not `presence_available`.
-- Next: class and activity rooms from pim-seed + `mod_pim_classroom` (students post only
-  while class chat is open); then the XMPP connector in `../pim`.
+- 2026-11-10: class and activity rooms: `mod_pim_classroom` (MUC component) makes one room
+  per class/activity, syncs owners/members with school.json on start and config reload
+  (verified: a dropped student loses the affiliation), members-only, unlisted, school-name
+  nicks, no room PMs, users can't create rooms, disco#items on the service = "my rooms".
+  During class students post only while class chat is open; open/close notices via the
+  `pim-class-chat` global event from mod_pim_classtime. Shared libs: `pim_school`,
+  `pim_clock`, `pim_rooms` (6 tests). `tests/live_rooms.py` 11 checks pass;
+  `tests/live_common.py` holds the shared test client.
+  Gotchas: Prosody's own MUC join errors don't echo `<x xmlns=muc/>`, so slixmpp's
+  join_muc_wait times out on them (our refusals echo it; the test watches presence
+  instead). Use `module:on_ready()` for work that needs the server up.
+- Next: the XMPP connector in `../pim` (see docs/plan.md phase 2).

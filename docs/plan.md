@@ -35,8 +35,10 @@ messages, IM windows and chat rooms, built for a school. Two repos:
    - [x] `pim-dev`: local Prosody as yourself, localhost only
    - [x] Run it against Prosody 13.0.7: buddy lists, away in class, class chat open and
          close, and status restored at the bell (`tests/live_classtime.py`)
-   - [ ] Class and activity rooms created by `pim-seed`; `mod_pim_classroom` lets students
-         post only while class chat is open
+   - [x] Class and activity rooms (`mod_pim_classroom`): made and kept in step with the
+         school file, members-only, school names, no room PMs, "my rooms" list, students
+         post during class only while class chat is open, open/close notices
+         (`tests/live_rooms.py`, 11 checks)
 2. **Client: XMPP connector** (pim fork): `backend/internal/connector/xmpp`, passing the
    upstream conformance suite; 1:1 messages and rooms through the existing UI.
 3. **Client: the AIM feel**: an optional presence capability on the connector; the

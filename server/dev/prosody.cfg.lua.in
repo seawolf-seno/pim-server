@@ -47,8 +47,9 @@ pim_classtime_interval = 10
 VirtualHost "pim.test"
 
 Component "rooms.pim.test" "muc"
-	modules_enabled = { "muc_mam" }
-	restrict_room_creation = "local"
+	modules_enabled = { "muc_mam"; "pim_classroom" }
+	restrict_room_creation = true   -- only the school's rooms (mod_pim_classroom)
+	pim_classroom_outside_class = "open"
 	muc_room_default_public = false
 	muc_room_default_members_only = true
 	muc_room_default_persistent = true

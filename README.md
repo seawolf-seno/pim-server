@@ -9,6 +9,9 @@ rooms. It's [Prosody](https://prosody.im) (XMPP) plus a few school modules.
 - **Away during class:** while a class is in session, its students and teacher show
   away with "In Biology · Block 2". The teacher can open a class chat for the period.
   Enforced by the server (`server/modules/mod_pim_classtime.lua`).
+- **Class and activity rooms:** one per class and activity, kept in step with the school
+  file. During class only the teacher posts until they open class chat
+  (`server/modules/mod_pim_classroom.lua`).
 - **Policy:** rooms plus logged 1:1, see [docs/policy.md](docs/policy.md) (draft).
 - **Plan:** [docs/plan.md](docs/plan.md).
 
@@ -52,9 +55,10 @@ unless `--real`, and refuses `--real` inside a git repository. It prints counts,
 ## Tests
 
 ```sh
-make test   # pim-seed (Python) and the class schedule (Lua 5.4)
+make test   # pim-seed (Python), class schedule and room rules (Lua 5.4)
 ```
 
-`tests/live_classtime.py` signs in fictional students and a teacher against the dev
-server (pinned as above) and checks buddy-list groups, away in class, and opening and
-closing class chat. It needs `slixmpp` (see the file's docstring).
+`tests/live_classtime.py` and `tests/live_rooms.py` sign in fictional students and
+teachers against the dev server (pinned as above, freshly started) and check buddy-list
+groups, away in class, class chat, and the rooms' rules. They need `slixmpp` (see the
+files' docstrings).

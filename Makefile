@@ -7,6 +7,7 @@ test-seed:
 
 test-lua:
 	lua5.4 tests/test_schedule.lua
+	lua5.4 tests/test_rooms.lua
 
 dev-up:
 	bin/pim-dev up

@@ -20,8 +20,23 @@ Decided by seno, 2026-11-10: **rooms plus logged 1:1.**
 | Class room | The class's students and teacher | Teacher moderates. Students post during class only when the teacher opens class chat. |
 | Activity room | Members and leader | Leader moderates. |
 
-Not built yet: the 1:1 limits and hours (planned `mod_pim_policy`). Built: buddy lists
-by class, activity and staff (`groups.txt`), and away during class (`mod_pim_classtime`).
+Built: buddy lists by class, activity and staff (`groups.txt`), away during class
+(`mod_pim_classtime`), and class and activity rooms (`mod_pim_classroom`). Not built yet:
+the 1:1 limits and hours (planned `mod_pim_policy`).
+
+### Rooms
+
+- The school makes the rooms: one per class (teacher owns it, students are members) and
+  one per activity (leader owns it). They follow the school file: someone who leaves a
+  class leaves its room on the next reload. Nobody else can create rooms.
+- Rooms are members-only and unlisted. Each person's room list shows only their own.
+- Everyone uses their school name in a room and can't change it.
+- No private messages through a room: every 1:1 message goes through the 1:1 rules.
+- Class room during its class: only the teacher posts, until the teacher opens class
+  chat. Outside the class period students may post (default; `pim_classroom_outside_class
+  = "closed"` keeps the room teacher-only unless class chat is open). Open for leadership:
+  which default the school wants, and quiet hours for rooms.
+- Activity rooms are open to members at any time (subject to quiet hours, planned).
 
 ## During class
 

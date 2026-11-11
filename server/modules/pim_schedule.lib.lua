@@ -66,6 +66,11 @@ function M.class_now(school, login, now)
 	return nil
 end
 
+-- Whether `class` is in session at `now`.
+function M.in_session(schedule, class, now)
+	return M.day_type(schedule, now) == class.day and M.block_at(schedule, now) == class.block
+end
+
 -- A key that changes when a class period starts or ends, so an opened class
 -- chat closes by itself at the end of its period.
 function M.period_key(class, now)

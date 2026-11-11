@@ -16,7 +16,6 @@
 --   pim_school_file = "/var/lib/pim/school.json"
 --   pim_classtime_interval = 30  -- seconds between checks for a period change
 
-local json = require "util.json";
 local st = require "util.stanza";
 local jid_split = require "util.jid".split;
 
@@ -25,56 +24,15 @@ local schedule = module:require("pim_schedule");
 local school_file = module:get_option_path("pim_school_file", nil, "data");
 local interval = module:get_option_number("pim_classtime_interval", 30);
 
-local school;
--- Shared so a reload keeps opened chats, and so mod_pim_classroom (the MUC
--- side, planned) can read the same state: { [period_key] = true }.
+local load_school = module:require("pim_school");
+local now = module:require("pim_clock");
+
+local school = load_school(school_file);
+module:hook_global("config-reloaded", function() school = load_school(school_file); end);
+
+-- Shared so a reload keeps opened chats, and so mod_pim_classroom (on the rooms
+-- component) reads the same state: { [period_key] = true }.
 local open_chats = module:shared("open_chats");
-
-local function load_school()
-	if not school_file then
-		module:log("error", "pim_school_file is not set; class time is off");
-		return nil;
-	end
-	local f, err = io.open(school_file, "r");
-	if not f then
-		module:log("error", "Can't read pim_school_file: %s", err);
-		return nil;
-	end
-	local text = f:read("*a");
-	f:close();
-	local data, decode_err = json.decode(text);
-	if type(data) ~= "table" or type(data.schedule) ~= "table" or type(data.classes) ~= "table" then
-		module:log("error", "pim_school_file is not a pim-seed school.json: %s", tostring(decode_err));
-		return nil;
-	end
-	-- Counts only: names never go in the log.
-	module:log("info", "Loaded school: %d classes", #data.classes);
-	return data;
-end
-
-school = load_school();
-module:hook_global("config-reloaded", function() school = load_school(); end);
-
--- Dev and demos only: pin the clock, as "YYYY-MM-DD HH:MM" (bin/pim-dev sets it
--- from PIM_FAKE_NOW). Never set on the school server.
-local fake_now = module:get_option_string("pim_classtime_fake_now");
-local fake_offset;
-if fake_now then
-	local y, mo, d, h, mi = fake_now:match("^(%d%d%d%d)-(%d%d)-(%d%d) (%d%d):(%d%d)$");
-	if y then
-		local pinned = os.time({ year = tonumber(y), month = tonumber(mo), day = tonumber(d),
-			hour = tonumber(h), min = tonumber(mi), sec = 0 });
-		fake_offset = pinned - os.time();
-		module:log("warn", "Clock pinned to %s for testing (pim_classtime_fake_now)", fake_now);
-	else
-		module:log("error", "pim_classtime_fake_now must be \"YYYY-MM-DD HH:MM\"; ignoring it");
-	end
-end
-
--- The fake clock keeps running from the pinned time, so periods still end.
-local function now()
-	return os.date("*t", os.time() + (fake_offset or 0));
-end
 
 -- The override for a session right now, and a key that changes when it does.
 local function override_for(username)
@@ -163,9 +121,14 @@ local function set_chat(open)
 			return { status = "completed", error = { message = "You aren't teaching a class right now." } };
 		end
 		local key = schedule.period_key(class, now());
+		local changed = (open_chats[key] or false) ~= open;
 		open_chats[key] = open or nil;
 		module:log("info", "Class chat %s for %s", open and "opened" or "closed", class.id);
 		refresh();
+		-- mod_pim_classroom posts a notice in the class room.
+		if changed then
+			prosody.events.fire_event("pim-class-chat", { host = module.host, class = class, open = open });
+		end
 		local verb = open and "opened" or "closed";
 		return { status = "completed", info = class.name .. " class chat " .. verb .. " for this period." };
 	end
