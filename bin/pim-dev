@@ -35,6 +35,14 @@ ctl() { prosodyctl --config "$cfg" "$@"; }
 
 seed() {
   mkdir -p "$dev/data" "$dev/certs"
+  # A self-signed certificate for the dev domain. Clients trust this file only.
+  if [[ ! -f $dev/certs/$host.crt ]]; then
+    openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -days 825 \
+      -subj "/CN=$host" -addext "subjectAltName=DNS:$host,DNS:rooms.$host" \
+      -addext "basicConstraints=critical,CA:TRUE" \
+      -keyout "$dev/certs/$host.key" -out "$dev/certs/$host.crt" 2>/dev/null
+    chmod 600 "$dev/certs/$host.key"
+  fi
   chmod 700 "$dev"
   python3 -I "$root/bin/pim-seed" build \
     --school "$root/fixtures/school/school.toml" \
@@ -73,7 +81,8 @@ case ${1:-} in
       sleep 0.1
     done
     if running; then
-      echo "pim dev server on 127.0.0.1:5222, domain $host. Accounts: fixtures/school/school.toml, password $password"
+      echo "pim dev server on 127.0.0.1:5222 (TLS; trust $dev/certs/$host.crt), domain $host."
+      echo "Accounts: fixtures/school/school.toml, password $password"
     else
       echo "Prosody didn't start; see $dev/prosody.out and $dev/prosody.err" >&2
       exit 1

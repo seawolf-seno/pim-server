@@ -42,4 +42,9 @@ Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
   Gotchas: Prosody's own MUC join errors don't echo `<x xmlns=muc/>`, so slixmpp's
   join_muc_wait times out on them (our refusals echo it; the test watches presence
   instead). Use `module:on_ready()` for work that needs the server up.
+- 2026-11-10: dev server requires TLS (self-signed cert for pim.test and rooms.pim.test made
+  by pim-dev in .dev/certs; clients trust that file). Needed because mellium (pim's XMPP
+  library) won't do SASL on an insecure stream, and the dev server should match the school
+  one. Gotcha: Prosody doesn't autoload `tls`; without it in modules_enabled it offers no
+  STARTTLS and closes with "No stream features to offer on insecure session".
 - Next: the XMPP connector in `../pim` (see docs/plan.md phase 2).

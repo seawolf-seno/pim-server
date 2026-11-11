@@ -38,7 +38,8 @@ PIM_FAKE_NOW="2026-11-09 10:00" bin/pim-dev up   # Monday, Biology in session
 ```
 
 Sign in from any XMPP client as, for example, `rteague29@pim.test` (password `pim-dev`,
-server `127.0.0.1`, port 5222, no TLS). People and classes are in
+server `127.0.0.1`, port 5222). The dev server requires TLS, like the school server,
+with a self-signed certificate `pim-dev` makes: trust `.dev/certs/pim.test.crt`. People and classes are in
 `fixtures/school/school.toml`; times in `fixtures/school/schedule.toml` (OmaMastery's format).
 
 ## The school file and schedule

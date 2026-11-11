@@ -1,6 +1,7 @@
 """Shared pieces of the live tests (tests/live_*.py). Fictional accounts only."""
 
 import asyncio
+from pathlib import Path
 
 import slixmpp
 
@@ -9,6 +10,7 @@ ROOMS = "rooms.pim.test"
 PASSWORD = "pim-dev"
 SERVER = ("127.0.0.1", 5222)
 TIMEOUT = 10
+CERT = Path(__file__).resolve().parent.parent / ".dev" / "certs" / f"{DOMAIN}.crt"
 
 
 def jid(login):
@@ -26,11 +28,9 @@ class Client(slixmpp.ClientXMPP):
         self.room_messages = []  # (room, nick, body)
         self.errors = []  # (from, condition, text) of message errors
         self.ready = asyncio.Event()
-        self.enable_starttls = False
+        # STARTTLS, trusting only the dev server's own self-signed certificate.
         self.enable_direct_tls = False
-        self.enable_plaintext = True
-        # The dev server is plain localhost. SCRAM never sends the password itself.
-        self.plugin["feature_mechanisms"].unencrypted_scram = True
+        self.ca_certs = str(CERT)
         for plugin in ("xep_0030", "xep_0045", "xep_0050"):
             self.register_plugin(plugin)
         self.add_event_handler("session_start", self.on_start)
