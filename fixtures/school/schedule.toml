@@ -1,0 +1,24 @@
+# Same format as OmaMastery's schedule.toml, so a school keeps one schedule.
+# Made-up for development: PLACEHOLDER TIMES, a few Fridays and one break.
+
+first_day = "2026-08-19"
+last_day = "2027-05-20"
+a_days = ["Mon", "Wed"]
+b_days = ["Tue", "Thu"]
+
+blocks = [
+  { number = 1, start = "08:00", end = "09:25" },
+  { number = 2, start = "09:35", end = "11:00" },
+  { number = 3, start = "11:40", end = "13:05" },
+  { number = 4, start = "13:15", end = "14:40" },
+]
+
+[fridays]
+"2026-11-06" = "A"
+"2026-11-13" = "A"
+"2026-11-20" = "B"
+
+[[off]]
+from = "2026-11-23"
+to = "2026-11-27"
+label = "Thanksgiving Break"

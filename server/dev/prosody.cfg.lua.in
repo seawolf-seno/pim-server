@@ -1,0 +1,54 @@
+-- pim development server: localhost only, fictional accounts only.
+-- bin/pim-dev writes this into .dev/prosody.cfg.lua with @DEV@ and @MODULES@
+-- filled in. Edit server/dev/prosody.cfg.lua.in, not the copy.
+
+pidfile = "@DEV@/prosody.pid"
+data_path = "@DEV@/data"
+plugin_paths = { "@MODULES@" }
+log = {
+	info = "@DEV@/prosody.log";
+	error = "@DEV@/prosody.err";
+}
+
+admins = { }
+interfaces = { "127.0.0.1" }
+local_interfaces = { "127.0.0.1" }
+c2s_ports = { 5222 }
+http_ports = { }
+https_ports = { }
+
+-- Dev only: plain connections on localhost with made-up accounts. The school
+-- server requires TLS (server/prosody.cfg.lua, planned).
+c2s_require_encryption = false
+allow_unencrypted_plain_auth = true
+
+authentication = "internal_hashed"
+storage = "internal"
+allow_registration = false
+
+modules_enabled = {
+	"roster"; "saslauth"; "disco"; "carbons"; "pep"; "private"; "blocklist";
+	"vcard4"; "vcard_legacy"; "ping"; "time"; "smacks"; "csi_simple";
+	"mam";            -- message archive (docs/policy.md: the safety archive)
+	"groups";         -- buddy lists from pim-seed's groups.txt
+	"adhoc";
+	"admin_shell";
+	"pim_classtime";  -- away during class
+}
+modules_disabled = { "s2s" }  -- no federation: only this school's accounts
+
+archive_expires_after = "1w"  -- dev; the school's retention is a policy decision
+default_archive_policy = true
+
+groups_file = "@DEV@/seed/groups.txt"
+pim_school_file = "@DEV@/seed/school.json"
+pim_classtime_interval = 10
+
+VirtualHost "pim.test"
+
+Component "rooms.pim.test" "muc"
+	modules_enabled = { "muc_mam" }
+	restrict_room_creation = "local"
+	muc_room_default_public = false
+	muc_room_default_members_only = true
+	muc_room_default_persistent = true

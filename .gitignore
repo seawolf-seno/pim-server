@@ -1,0 +1,13 @@
+/.dev/
+/build/
+
+# Real school data never belongs in this repo (FERPA). pim-seed --real refuses
+# to write inside a git repository; these catch a copy made by hand.
+school.json
+groups.txt
+accounts.txt
+roster.toml
+*.real.toml
+secrets
+
+__pycache__/

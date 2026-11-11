@@ -1,0 +1,98 @@
+# A made-up school for development and tests. No real people.
+# Never put a real name, login or roster in this repo (FERPA). pim-seed refuses
+# any school file without `fictional = true` unless --real is given, and refuses
+# --real inside a git repository.
+fictional = true
+
+domain = "pim.test"
+rooms_domain = "rooms.pim.test"
+
+# Staff who may open the safety archive (docs/policy.md). Every open is logged.
+archive_readers = ["castellan"]
+
+# Roles follow pacos-role: a login ending in a two-digit graduation year is a
+# student; any other login is staff.
+[[person]]
+login = "okafor"
+name = "Mr. Okafor"
+
+[[person]]
+login = "haddad"
+name = "Ms. Haddad"
+
+[[person]]
+login = "lindqvist"
+name = "Ms. Lindqvist"
+
+[[person]]
+login = "pell"
+name = "Dr. Pell"
+
+[[person]]
+login = "castellan"
+name = "Br. Castellan"
+
+[[person]]
+login = "ibarra"
+name = "Coach Ibarra"
+
+[[person]]
+login = "rteague29"
+name = "Rowan Teague"
+
+[[person]]
+login = "jmarchetti29"
+name = "Jules Marchetti"
+
+[[person]]
+login = "amensah28"
+name = "Ama Mensah"
+
+[[person]]
+login = "kosei30"
+name = "Kenji Osei"
+
+[[person]]
+login = "lvance29"
+name = "Lena Vance"
+
+[[person]]
+login = "dpark28"
+name = "Daniel Park"
+
+# day and block match OmaMastery's class.toml; schedule.toml says when they are.
+[[class]]
+id = "biology"
+name = "Biology"
+day = "A"
+block = 2
+teacher = "okafor"
+students = ["rteague29", "jmarchetti29", "lvance29"]
+
+[[class]]
+id = "english-10"
+name = "English 10"
+day = "B"
+block = 1
+teacher = "haddad"
+students = ["rteague29", "jmarchetti29", "kosei30"]
+
+[[class]]
+id = "geometry"
+name = "Geometry"
+day = "A"
+block = 3
+teacher = "lindqvist"
+students = ["amensah28", "dpark28", "lvance29"]
+
+[[activity]]
+id = "robotics"
+name = "Robotics Club"
+leader = "pell"
+members = ["rteague29", "dpark28"]
+
+[[activity]]
+id = "cross-country"
+name = "Cross Country"
+leader = "ibarra"
+members = ["jmarchetti29", "amensah28"]

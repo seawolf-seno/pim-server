@@ -1,0 +1,85 @@
+#!/bin/bash
+# pim-dev: run a local pim server with the fictional school, as you (not root).
+#
+#   pim-dev up        seed .dev/ from fixtures/school, create accounts, start Prosody
+#   pim-dev down      stop it
+#   pim-dev status    is it running
+#   pim-dev log       follow the log
+#   pim-dev reset     stop and delete .dev/ (all dev accounts and messages)
+#
+# Every fictional account's password is "pim-dev". Needs prosody
+# (sudo pacman -S prosody); the system service is not used.
+set -euo pipefail
+
+root=$(cd "$(dirname "$0")/.." && pwd)
+dev=$root/.dev
+cfg=$dev/prosody.cfg.lua
+host=pim.test
+password=pim-dev
+
+need_prosody() {
+  command -v prosody >/dev/null && command -v prosodyctl >/dev/null || {
+    echo "pim-dev: prosody isn't installed (sudo pacman -S prosody)" >&2
+    exit 1
+  }
+}
+
+running() {
+  [[ -f $dev/prosody.pid ]] && kill -0 "$(cat "$dev/prosody.pid")" 2>/dev/null
+}
+
+ctl() { prosodyctl --config "$cfg" "$@"; }
+
+seed() {
+  mkdir -p "$dev/data"
+  chmod 700 "$dev"
+  python3 -I "$root/bin/pim-seed" build \
+    --school "$root/fixtures/school/school.toml" \
+    --schedule "$root/fixtures/school/schedule.toml" \
+    --out "$dev/seed"
+  sed -e "s|@DEV@|$dev|g" -e "s|@MODULES@|$root/server/modules|g" \
+    "$root/server/dev/prosody.cfg.lua.in" >"$cfg"
+  while read -r login; do
+    [[ -n $login ]] || continue
+    if ! ctl user list "$host" 2>/dev/null | grep -qx "$login@$host"; then
+      printf '%s\n%s\n' "$password" "$password" | ctl adduser "$login@$host" >/dev/null
+    fi
+  done <"$dev/seed/accounts.txt"
+}
+
+case ${1:-} in
+  up)
+    need_prosody
+    if running; then echo "Already running (pim-dev down first)."; exit 0; fi
+    seed
+    nohup prosody --config "$cfg" -F >>"$dev/prosody.out" 2>&1 &
+    for _ in $(seq 50); do
+      running && break
+      sleep 0.1
+    done
+    if running; then
+      echo "pim dev server on 127.0.0.1:5222, domain $host. Accounts: fixtures/school/school.toml, password $password"
+    else
+      echo "Prosody didn't start; see $dev/prosody.out and $dev/prosody.err" >&2
+      exit 1
+    fi
+    ;;
+  down)
+    if running; then kill "$(cat "$dev/prosody.pid")"; echo "Stopped."; else echo "Not running."; fi
+    ;;
+  status)
+    if running; then echo "Running (pid $(cat "$dev/prosody.pid"))."; else echo "Not running."; exit 1; fi
+    ;;
+  log)
+    exec tail -f "$dev/prosody.log" "$dev/prosody.err"
+    ;;
+  reset)
+    if running; then kill "$(cat "$dev/prosody.pid")"; fi
+    rm -rf "$dev"
+    echo "Deleted .dev/."
+    ;;
+  *)
+    sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+    exit 1
+    ;;
+esac
