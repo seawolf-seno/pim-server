@@ -7,6 +7,9 @@
 #   pim-dev log       follow the log
 #   pim-dev reset     stop and delete .dev/ (all dev accounts and messages)
 #
+# PIM_FAKE_NOW="2026-11-09 10:00" pim-dev up pins the class-time clock (Monday,
+# Biology, in the fictional school), for testing and demos.
+#
 # Every fictional account's password is "pim-dev". Needs prosody
 # (sudo pacman -S prosody); the system service is not used.
 set -euo pipefail
@@ -31,7 +34,7 @@ running() {
 ctl() { prosodyctl --config "$cfg" "$@"; }
 
 seed() {
-  mkdir -p "$dev/data"
+  mkdir -p "$dev/data" "$dev/certs"
   chmod 700 "$dev"
   python3 -I "$root/bin/pim-seed" build \
     --school "$root/fixtures/school/school.toml" \
@@ -39,11 +42,23 @@ seed() {
     --out "$dev/seed"
   sed -e "s|@DEV@|$dev|g" -e "s|@MODULES@|$root/server/modules|g" \
     "$root/server/dev/prosody.cfg.lua.in" >"$cfg"
+  if [[ -n ${PIM_FAKE_NOW:-} ]]; then
+    [[ $PIM_FAKE_NOW =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}\ [0-9]{2}:[0-9]{2}$ ]] || {
+      echo "pim-dev: PIM_FAKE_NOW must be \"YYYY-MM-DD HH:MM\"" >&2
+      exit 1
+    }
+    # Global option, before the first VirtualHost line.
+    sed -i "s|^VirtualHost |pim_classtime_fake_now = \"$PIM_FAKE_NOW\"\n\nVirtualHost |" "$cfg"
+  fi
+  # Prosody's internal storage keeps an account at data/<host, "." as %2e>/accounts/.
+  local accounts=$dev/data/${host//./%2e}/accounts
   while read -r login; do
     [[ -n $login ]] || continue
-    if ! ctl user list "$host" 2>/dev/null | grep -qx "$login@$host"; then
-      printf '%s\n%s\n' "$password" "$password" | ctl adduser "$login@$host" >/dev/null
-    fi
+    [[ -f $accounts/$login.dat ]] && continue
+    ctl register "$login" "$host" "$password" >/dev/null 2>&1 || {
+      echo "pim-dev: couldn't create $login@$host" >&2
+      exit 1
+    }
   done <"$dev/seed/accounts.txt"
 }
 
@@ -79,7 +94,7 @@ case ${1:-} in
     echo "Deleted .dev/."
     ;;
   *)
-    sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
     ;;
 esac

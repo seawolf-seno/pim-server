@@ -55,8 +55,25 @@ end
 school = load_school();
 module:hook_global("config-reloaded", function() school = load_school(); end);
 
+-- Dev and demos only: pin the clock, as "YYYY-MM-DD HH:MM" (bin/pim-dev sets it
+-- from PIM_FAKE_NOW). Never set on the school server.
+local fake_now = module:get_option_string("pim_classtime_fake_now");
+local fake_offset;
+if fake_now then
+	local y, mo, d, h, mi = fake_now:match("^(%d%d%d%d)-(%d%d)-(%d%d) (%d%d):(%d%d)$");
+	if y then
+		local pinned = os.time({ year = tonumber(y), month = tonumber(mo), day = tonumber(d),
+			hour = tonumber(h), min = tonumber(mi), sec = 0 });
+		fake_offset = pinned - os.time();
+		module:log("warn", "Clock pinned to %s for testing (pim_classtime_fake_now)", fake_now);
+	else
+		module:log("error", "pim_classtime_fake_now must be \"YYYY-MM-DD HH:MM\"; ignoring it");
+	end
+end
+
+-- The fake clock keeps running from the pinned time, so periods still end.
 local function now()
-	return os.date("*t");
+	return os.date("*t", os.time() + (fake_offset or 0));
 end
 
 -- The override for a session right now, and a key that changes when it does.

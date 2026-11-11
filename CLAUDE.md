@@ -23,5 +23,13 @@ Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
   `mod_pim_classtime` and `pim-dev` are **not yet run against a real Prosody**: prosody
   isn't installed on seno's machine yet.
 - 2026-11-10: Locker scope decided (messages with staff, teacher announcements, own messages; never other students' words): docs/plan.md.
-- Next: install prosody, run `pim-dev up`, check away-in-class with two XMPP clients;
-  then class rooms + `mod_pim_classroom`; then the XMPP connector in `../pim`.
+- 2026-11-10: verified live on Prosody 13.0.7 (seno's machine): `tests/live_classtime.py`
+  7 checks pass (groups, away in class, teacher teaching, others untouched, open/close
+  class chat, students can't open it); status restored at the bell (pinned 10:59, back to
+  the student's own status at 11:00). `PIM_FAKE_NOW` pins the clock for tests and demos.
+  Gotchas: Prosody 13 has no `prosodyctl user list` (pim-dev checks account files);
+  `prosody --version` starts a server with the system config; the lua-unbound warning is
+  harmless (no s2s); slixmpp needs `unencrypted_scram` on localhost and reports away as
+  `presence_away`, not `presence_available`.
+- Next: class and activity rooms from pim-seed + `mod_pim_classroom` (students post only
+  while class chat is open); then the XMPP connector in `../pim`.

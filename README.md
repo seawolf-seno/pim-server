@@ -27,6 +27,13 @@ bin/pim-dev down
 bin/pim-dev reset   # delete .dev/
 ```
 
+Class time follows the server's clock. To try it outside school hours, pin the clock
+(dev only; it keeps running from there, so periods still end):
+
+```sh
+PIM_FAKE_NOW="2026-11-09 10:00" bin/pim-dev up   # Monday, Biology in session
+```
+
 Sign in from any XMPP client as, for example, `rteague29@pim.test` (password `pim-dev`,
 server `127.0.0.1`, port 5222, no TLS). People and classes are in
 `fixtures/school/school.toml`; times in `fixtures/school/schedule.toml` (OmaMastery's format).
@@ -47,3 +54,7 @@ unless `--real`, and refuses `--real` inside a git repository. It prints counts,
 ```sh
 make test   # pim-seed (Python) and the class schedule (Lua 5.4)
 ```
+
+`tests/live_classtime.py` signs in fictional students and a teacher against the dev
+server (pinned as above) and checks buddy-list groups, away in class, and opening and
+closing class chat. It needs `slixmpp` (see the file's docstring).

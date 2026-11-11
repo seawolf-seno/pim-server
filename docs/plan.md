@@ -33,7 +33,8 @@ messages, IM windows and chat rooms, built for a school. Two repos:
    - [x] `pim_schedule` (pure Lua, tested) and `mod_pim_classtime`: away during class,
          "Open class chat" / "Close class chat" for the teacher
    - [x] `pim-dev`: local Prosody as yourself, localhost only
-   - [ ] Run it: `mod_pim_classtime` against a real Prosody (needs `pacman -S prosody`)
+   - [x] Run it against Prosody 13.0.7: buddy lists, away in class, class chat open and
+         close, and status restored at the bell (`tests/live_classtime.py`)
    - [ ] Class and activity rooms created by `pim-seed`; `mod_pim_classroom` lets students
          post only while class chat is open
 2. **Client: XMPP connector** (pim fork): `backend/internal/connector/xmpp`, passing the
