@@ -53,4 +53,6 @@ Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
 - 2026-11-10: `../pim` XMPP connector done (branch xmpp-connector, commit 20439c7), live-tested
   against this dev server: `PIM_CA=$PWD/.dev/certs/pim.test.crt go test -tags xmpplive -run Live
   ./backend/internal/connector/xmpp/` from `../pim`, with the server pinned to Monday 10:00.
-- Next: buddy list + presence in pim's window (phase 3); then `mod_pim_policy` (1:1 rules).
+- 2026-11-10: `../pim` buddy list done (branch buddy-list, commit 7253b2e, stacked on
+  xmpp-connector): roster groups + presence from this server shown AIM style; Ctrl+B.
+- Next: set-your-away-message command in pim; then `mod_pim_policy` (1:1 rules).

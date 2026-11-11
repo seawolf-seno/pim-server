@@ -43,9 +43,11 @@ messages, IM windows and chat rooms, built for a school. Two repos:
    `backend/internal/connector/xmpp`, passing the upstream conformance suite; roster,
    rooms (with the server-given school name), 1:1 messages with receipts, room echoes,
    refused posts marked failed. Live-tested against this repo's dev server.
-3. **Client: the AIM feel**: an optional presence capability on the connector; the
-   buddy list (groups from the server, online/away dots, away messages); set your own
-   away message; door-open/close-style sounds that are pim's own, not AOL's.
+3. **Client: the AIM feel** (pim branch `buddy-list`): buddy list done 2026-11-10: groups
+   from the server, online first and Offline at the bottom, presence glyphs and away
+   messages, Ctrl+B, Enter opens a chat; XMPP in the rail. Still to do: a command to set
+   your own away message (the helper's `presence.set` exists); pim's own door
+   sounds, not AOL's.
 4. **Rules**: `mod_pim_policy` for 1:1 limits and hours, held notifications in class,
    test mode, the Report button, and an archive-reader access log.
 5. **School build and pacos**: only the XMPP connector compiled in (no Telegram or
