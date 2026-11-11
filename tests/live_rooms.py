@@ -55,6 +55,25 @@ async def refused(client, room, nick):
     return None
 
 
+async def joined_as(client, room, nick):
+    """Join asking for `nick`; return the nickname the room actually gave us."""
+    reply = asyncio.get_running_loop().create_future()
+
+    def on_presence(p):
+        codes = p["muc"]["status_codes"] if p["from"].bare == room.bare else set()
+        if 110 in codes and not reply.done():
+            reply.set_result(p["from"].resource)
+
+    client.add_event_handler("presence", on_presence)
+    try:
+        client.plugin["xep_0045"].join_muc(room, nick)
+        given = await asyncio.wait_for(reply, common.TIMEOUT)
+    finally:
+        client.del_event_handler("presence", on_presence)
+    client.plugin["xep_0045"].leave_muc(room, given)
+    return given
+
+
 def said(client, room, body):
     return any(r == room.bare and b == body for r, _, b in client.room_messages)
 
@@ -80,8 +99,8 @@ async def main():
     assert mine == {f"biology@{ROOMS}", f"english-10@{ROOMS}", f"robotics@{ROOMS}"}, mine
     ok("my rooms lists exactly my classes and activities")
 
-    assert await refused(rowan, BIOLOGY, "Mr. Okafor") == "not-acceptable"
-    ok("you can't join under someone else's name")
+    assert await joined_as(rowan, BIOLOGY, "Mr. Okafor") == "Rowan Teague"
+    ok("joining under someone else's name gets your own school name")
 
     assert await refused(kenji, BIOLOGY, "Kenji Osei") == "registration-required"
     ok("someone not in the class can't join its room")
@@ -91,7 +110,7 @@ async def main():
 
     await join(rowan, BIOLOGY, "Rowan Teague")
     await join(okafor, BIOLOGY, "Mr. Okafor")
-    ok("class members join with their school names")
+    ok("class members join under their school names")
 
     post(rowan, BIOLOGY, "can we start the lab?")
     await wait_for("Rowan's post refused", lambda: any("closed during class" in (t or "") for _, _, t in rowan.errors),

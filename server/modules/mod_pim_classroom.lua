@@ -11,7 +11,8 @@
 --     has class chat open (mod_pim_classtime's "Open class chat"). Outside the
 --     period they may post unless pim_classroom_outside_class = "closed".
 --   * Activity rooms are open to their members any time.
---   * People use their school name as their room nickname, and can't change it.
+--   * People appear under their school name (the server renames them on joining)
+--     and can't change it.
 --   * No private messages through a room: 1:1 messages go through the server's
 --     own rules (docs/policy.md).
 --
@@ -122,25 +123,32 @@ local function refuse_join(event, kind, condition, text)
 	return true;
 end
 
--- Nicknames: your school name, on joining and ever after.
-local function check_nick(event, occupant)
-	if not school then return; end
-	local login = login_of(event.stanza.attr.from);
-	local want = login and rules.nick_for(school, login);
-	if not want then
-		return refuse_join(event, "auth", "forbidden", "Only school accounts can join.");
-	end
-	if jid_resource(occupant.nick) ~= want then
-		return refuse_join(event, "modify", "not-acceptable", "Join with your school name: " .. want);
-	end
+-- Nicknames: everyone appears under their school name. On joining, the server
+-- renames the occupant to it (XEP-0045 status 210 tells the client its real
+-- nickname), so a client never has to know the name in advance. Changing it
+-- afterwards is refused.
+local function school_nick(event)
+	local login = school and login_of(event.stanza.attr.from);
+	return login and rules.nick_for(school, login);
 end
 
 module:hook("muc-occupant-pre-join", function(event)
-	return check_nick(event, event.occupant);
+	if not school then return; end
+	local want = school_nick(event);
+	if not want then
+		return refuse_join(event, "auth", "forbidden", "Only school accounts can join.");
+	end
+	event.occupant.nick = event.room.jid .. "/" .. want;
 end, 5);
 
 module:hook("muc-occupant-pre-change", function(event)
-	return check_nick(event, event.dest_occupant);
+	if not school then return; end
+	local want = school_nick(event);
+	if jid_resource(event.dest_occupant.nick) ~= want then
+		event.origin.send(st.error_reply(event.stanza, "modify", "not-acceptable",
+			"Your name in rooms is your school name.", event.room.jid));
+		return true;
+	end
 end, 5);
 
 -- A notice in the class room when its teacher opens or closes class chat.

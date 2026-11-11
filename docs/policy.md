@@ -30,7 +30,8 @@ the 1:1 limits and hours (planned `mod_pim_policy`).
   one per activity (leader owns it). They follow the school file: someone who leaves a
   class leaves its room on the next reload. Nobody else can create rooms.
 - Rooms are members-only and unlisted. Each person's room list shows only their own.
-- Everyone uses their school name in a room and can't change it.
+- Everyone appears under their school name in a room (the server renames them on
+  joining) and can't change it.
 - No private messages through a room: every 1:1 message goes through the 1:1 rules.
 - Class room during its class: only the teacher posts, until the teacher opens class
   chat. Outside the class period students may post (default; `pim_classroom_outside_class
