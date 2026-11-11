@@ -1,7 +1,8 @@
 # pim-server
 
 The XMPP (Prosody) server for pim, the school messenger. Part of the school dev platform
-initiative (see `~/.claude/CLAUDE.md`). Client: `../pim` (fork of timlittle/omamessenger).
+initiative (see `~/.claude/CLAUDE.md`). Fizzy: PacOS board, card #51. Client: `../pim` (fork of
+timlittle/omamessenger).
 Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
 
 - **Rules live on the server.** Anything a student must not get around (class time,
