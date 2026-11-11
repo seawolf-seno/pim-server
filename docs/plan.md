@@ -18,6 +18,8 @@ messages, IM windows and chat rooms, built for a school. Two repos:
   class unless the teacher opens a class chat.
 - 2026-11-10 (seno): student devices are the system of record through OmaLocker; pim is
   one more input to each student's Locker.
+- 2026-11-10 (seno): the Locker gets messages with staff, teacher announcements and the
+  student's own messages; never other students' words ("pim and OmaLocker").
 - XMPP with Prosody: buddy lists (rosters), presence and away messages, rooms and a
   message archive are all standard, so the school owns an open protocol on its own server.
 - Class time is enforced by the server (`mod_pim_classtime`), not the client.
@@ -58,21 +60,21 @@ OmaLocker turns it into notes, the way `omalocker import pacterminus` works:
 3. Notes are private by default: only the student and their own AI tools. They reach a
    parent, teacher or advisor view only if the student shares them.
 
-Proposed default for what reaches the Locker (open, needs seno's decision):
-- messages between the student and teachers or staff, and teacher announcements in rooms
-- the student's own messages
-- never other students' words, and never student-to-student 1:1 messages, because they
-  would become context for one student's AI about another
+What reaches the Locker (decided by seno, 2026-11-10):
+- messages between the student and teachers or staff
+- teacher announcements in class and activity rooms
+- the student's own messages, in rooms and 1:1
+- never other students' words, and never the other side of a student-to-student 1:1
+  conversation, because they would become context for one student's AI about another
 
 Open: Graphify over pim notes reverses OmaLocker's "Graphify only on curriculum files"
 decision and needs seno's sign-off, plus the AI-on-student-data gate.
 
 ## Open decisions
 
-1. What reaches the Locker (above).
-2. Chat sign-in: a separate pim password for the pilot, or automatic sign-in from the
+1. Chat sign-in: a separate pim password for the pilot, or automatic sign-in from the
    pacos login (needs provisioning in pacos).
-3. Where the school server runs (one of the pilot servers?), and its time zone (the
+2. Where the school server runs (one of the pilot servers?), and its time zone (the
    server's local time is the school's).
-4. Where class lists come from for real: Blackbaud on the server, or OmaMastery.
-5. Safety archive: retention, parent requests, age 18, report path (`policy.md`).
+3. Where class lists come from for real: Blackbaud on the server, or OmaMastery.
+4. Safety archive: retention, parent requests, age 18, report path (`policy.md`).
