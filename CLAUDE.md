@@ -60,4 +60,9 @@ Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
   address checks out against pim.test.crt, and `../pim`'s live XMPP test passes with the
   server set to the LAN address. Not yet tried from a second computer (ufw needs port 5222
   open). pim's sign-in form is on its branch `xmpp-sign-in`.
+- 2026-11-19: first message between two computers: seno's laptop ran `PIM_LISTEN` dev server
+  (clock pinned Monday 10:00) and pim as rteague29; a second Omarchy computer on the same
+  Wi-Fi ran pim (branch `xmpp-sign-in`) as jmarchetti29 and sent a message that arrived.
+  Fictional accounts only. Gotchas: ufw needs port 5222 open on the server computer; no sshd
+  there, so the certificate was copied with LocalSend.
 - Next: set-your-away-message command in pim; then `mod_pim_policy` (1:1 rules).
