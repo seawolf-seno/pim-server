@@ -55,4 +55,9 @@ Siblings: `../pacos`, `../omalocker`, `../omamastery`, `../omaclass`.
   ./backend/internal/connector/xmpp/` from `../pim`, with the server pinned to Monday 10:00.
 - 2026-11-10: `../pim` buddy list done (branch buddy-list, commit 7253b2e, stacked on
   xmpp-connector): roster groups + presence from this server shown AIM style; Ctrl+B.
+- 2026-11-19: `PIM_LISTEN=<IPv4>` (or `0.0.0.0`) makes the dev server listen beyond
+  127.0.0.1, so a second computer can connect. Verified on seno's machine: TLS from the LAN
+  address checks out against pim.test.crt, and `../pim`'s live XMPP test passes with the
+  server set to the LAN address. Not yet tried from a second computer (ufw needs port 5222
+  open). pim's sign-in form is on its branch `xmpp-sign-in`.
 - Next: set-your-away-message command in pim; then `mod_pim_policy` (1:1 rules).

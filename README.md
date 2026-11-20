@@ -37,6 +37,18 @@ Class time follows the server's clock. To try it outside school hours, pin the c
 PIM_FAKE_NOW="2026-11-09 10:00" bin/pim-dev up   # Monday, Biology in session
 ```
 
+To let a second computer on the network connect, listen on this computer's address too
+(`ip -4 addr` shows it), and open the port in the firewall (Omarchy turns ufw on):
+
+```sh
+PIM_LISTEN=192.168.1.20 bin/pim-dev up     # or 0.0.0.0 for every address
+sudo ufw allow from 192.168.0.0/16 to any port 5222 proto tcp
+```
+
+The other computer sets the server to that address and trusts a copy of
+`.dev/certs/pim.test.crt`. Anyone who can reach the port can sign in with the dev password,
+so do this on a network you trust, not school or public Wi-Fi.
+
 Sign in from any XMPP client as, for example, `rteague29@pim.test` (password `pim-dev`,
 server `127.0.0.1`, port 5222). The dev server requires TLS, like the school server,
 with a self-signed certificate `pim-dev` makes: trust `.dev/certs/pim.test.crt`. People and classes are in

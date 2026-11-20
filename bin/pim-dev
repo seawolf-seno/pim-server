@@ -10,6 +10,11 @@
 # PIM_FAKE_NOW="2026-11-09 10:00" pim-dev up pins the class-time clock (Monday,
 # Biology, in the fictional school), for testing and demos.
 #
+# PIM_LISTEN=192.168.1.20 pim-dev up listens on that address as well as
+# 127.0.0.1, so a second computer on the network can connect (0.0.0.0 for every
+# address). Anyone who can reach it can sign in with the dev password, so use it
+# on a network you trust, not school or public Wi-Fi.
+#
 # Every fictional account's password is "pim-dev". Needs prosody
 # (sudo pacman -S prosody); the system service is not used.
 set -euo pipefail
@@ -19,6 +24,7 @@ dev=$root/.dev
 cfg=$dev/prosody.cfg.lua
 host=pim.test
 password=pim-dev
+listen=${PIM_LISTEN:-127.0.0.1}
 
 need_prosody() {
   command -v prosody >/dev/null && command -v prosodyctl >/dev/null || {
@@ -48,7 +54,18 @@ seed() {
     --school "$root/fixtures/school/school.toml" \
     --schedule "$root/fixtures/school/schedule.toml" \
     --out "$dev/seed"
-  sed -e "s|@DEV@|$dev|g" -e "s|@MODULES@|$root/server/modules|g" \
+  [[ $listen =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || {
+    echo "pim-dev: PIM_LISTEN must be an IPv4 address, such as 192.168.1.20 or 0.0.0.0" >&2
+    exit 1
+  }
+  # 0.0.0.0 already covers 127.0.0.1; listing both would bind the port twice.
+  local interfaces='"127.0.0.1"'
+  case $listen in
+    127.0.0.1) ;;
+    0.0.0.0) interfaces='"0.0.0.0"' ;;
+    *) interfaces+=", \"$listen\"" ;;
+  esac
+  sed -e "s|@DEV@|$dev|g" -e "s|@MODULES@|$root/server/modules|g" -e "s|@INTERFACES@|$interfaces|g" \
     "$root/server/dev/prosody.cfg.lua.in" >"$cfg"
   if [[ -n ${PIM_FAKE_NOW:-} ]]; then
     [[ $PIM_FAKE_NOW =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}\ [0-9]{2}:[0-9]{2}$ ]] || {
@@ -81,7 +98,11 @@ case ${1:-} in
       sleep 0.1
     done
     if running; then
-      echo "pim dev server on 127.0.0.1:5222 (TLS; trust $dev/certs/$host.crt), domain $host."
+      echo "pim dev server on ${listen}:5222 (TLS; trust $dev/certs/$host.crt), domain $host."
+      if [[ $listen != 127.0.0.1 ]]; then
+        echo "Listening beyond this computer: other computers on the network can sign in."
+        echo "Their clients set the server to this computer's address and trust the same certificate file."
+      fi
       echo "Accounts: fixtures/school/school.toml, password $password"
     else
       echo "Prosody didn't start; see $dev/prosody.out and $dev/prosody.err" >&2
