@@ -77,10 +77,43 @@ What reaches the Locker (decided by seno, 2026-11-10):
 Open: Graphify over pim notes reverses OmaLocker's "Graphify only on curriculum files"
 decision and needs seno's sign-off, plus the AI-on-student-data gate.
 
+## Automatic sign-in on the school network
+
+Decided with seno, 2026-11-19. Shared with IT as the doc "PacOS Chat and Network Sign-In
+Plan" (https://claude.ai/artifact/UNo3wzZjhYHQS6f5VrNRKF). Each student has their own laptop,
+so one certificate per laptop, made during PacTerminus onboarding, signs the student in to
+the PacOS Wi-Fi (WPA-Enterprise, EAP-TLS) and to this server, with no chat password.
+
+Onboarding, once per laptop: join a limited onboarding Wi-Fi that reaches only the signing
+service; PacTerminus makes a key (kept in the TPM, as pacos already does for disk unlock);
+the student signs in with their school Google account; a school signing service issues a
+certificate for that login; pacos installs it. IT revokes a lost laptop's certificate, and
+the Wi-Fi and this server both check the revocation list.
+
+Phases (1 and 2 run side by side):
+
+1. Teacher pilot. This server on a school machine on the PacOS network, with a DNS name.
+   Accounts from the class list with random passwords; pacos installs pim, its helper, the
+   school's certificate and each teacher's chat settings, and pim signs in without the
+   form. Needs: pim reads a school settings file and adds the account itself; pacos keeps
+   pim's data folder in student homes' writable list.
+2. Prove certificate sign-in here: a test signing key, Prosody's community module
+   `mod_auth_ccert` (untested on Prosody 13), and pim signing in by certificate (check that
+   mellium supports SASL EXTERNAL). Done when two laptops message each other with no
+   password.
+3. Signing service (a new repo) with Google sign-in, the PacTerminus onboarding step, and
+   RADIUS for the PacOS Wi-Fi.
+4. Students: real class lists, `mod_pim_policy` (1:1 rules), the safety archive, after
+   leadership approves the messaging policy.
+
+Changes other repos need (to be made in their own sessions): pim (school settings file,
+certificate sign-in), pacos (package pim and the helper, install the school certificate and
+settings, writable data folder, Wi-Fi profile), PacTerminus (the key and certificate quest).
+
 ## Open decisions
 
-1. Chat sign-in: a separate pim password for the pilot, or automatic sign-in from the
-   pacos login (needs provisioning in pacos).
+1. Chat sign-in: decided 2026-11-19 (see "Automatic sign-in on the school network"):
+   pacos-installed passwords for the teacher pilot, then a certificate per laptop.
 2. Where the school server runs (one of the pilot servers?), and its time zone (the
    server's local time is the school's).
 3. Where class lists come from for real: Blackbaud on the server, or OmaMastery.
